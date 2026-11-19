@@ -1,0 +1,628 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYSO Yönetim Paneli | Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #111827;
+            color: #f8fafc;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .topbar {
+            background: #050505;
+            padding: 16px 25px;
+            border-bottom: 1px solid #343a40;
+        }
+
+        .logo {
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .dashboard-container {
+            max-width: 1500px;
+            margin: auto;
+            padding: 30px 20px;
+        }
+
+        .summary-card {
+            background: #252f3e;
+            border: 1px solid #3c4656;
+            border-radius: 12px;
+            padding: 22px;
+            text-align: center;
+            transition: .2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            border-color: #ffc107;
+        }
+
+        .summary-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .main-card {
+            background: #252f3e;
+            border: 1px solid #3c4656;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            white-space: nowrap;
+            color: #ffc107;
+            font-size: 13px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+        }
+
+        .search-input {
+            max-width: 350px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        footer {
+            color: #8993a1;
+            text-align: center;
+            padding: 25px;
+            font-size: 12px;
+        }
+
+        @media(max-width: 768px) {
+            .topbar .text-end {
+                text-align: left !important;
+                margin-top: 15px;
+            }
+
+            .search-input {
+                max-width: 100%;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+
+            <div class="col-lg-4 col-md-12 d-flex align-items-center">
+                <img src="mysologo.png" class="logo me-3" alt="MYSO Logo">
+                <div>
+                    <h5 class="mb-0">MYSO Yönetim Paneli</h5>
+                    <small class="text-secondary">Network Management System</small>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <input
+                    type="text"
+                    id="deviceSearch"
+                    class="form-control form-control-sm search-input"
+                    placeholder="Cihaz adı, IP veya modem türü ara..."
+                >
+            </div>
+
+            <div class="col-lg-4 col-md-6 text-end">
+                <span class="badge bg-success me-2">
+                    <i class="bi bi-circle-fill"></i> Sistem Aktif
+                </span>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<main class="dashboard-container">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+        <div>
+            <h3>Dashboard</h3>
+            <p class="text-secondary mb-0">Cihazlarınızı buradan yönetebilirsiniz.</p>
+        </div>
+
+        <div class="text-secondary small">
+            <i class="bi bi-calendar3"></i>
+            <span id="currentDate"></span>
+        </div>
+    </div>
+
+    <!-- ÖZET KARTLAR -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="summary-card">
+                <div class="summary-icon text-warning">
+                    <i class="bi bi-router"></i>
+                </div>
+                <h6>Toplam Cihaz</h6>
+                <h2 id="totalDevices">0</h2>
+                <small class="text-secondary">Kayıtlı cihaz</small>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="summary-card">
+                <div class="summary-icon text-success">
+                    <i class="bi bi-wifi"></i>
+                </div>
+                <h6>Router</h6>
+                <h2 id="routerCount">0</h2>
+                <small class="text-secondary">Router cihazları</small>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="summary-card">
+                <div class="summary-icon text-info">
+                    <i class="bi bi-broadcast"></i>
+                </div>
+                <h6>Access Point</h6>
+                <h2 id="apCount">0</h2>
+                <small class="text-secondary">Access Point cihazları</small>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="summary-card">
+                <div class="summary-icon text-danger">
+                    <i class="bi bi-hdd-network"></i>
+                </div>
+                <h6>Modem Tanımlı</h6>
+                <h2 id="modemCount">0</h2>
+                <small class="text-secondary">Modem IP kaydı olanlar</small>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CİHAZ LİSTESİ -->
+    <section class="main-card">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+
+            <div>
+                <h5 class="mb-1">
+                    <i class="bi bi-pc-display-horizontal text-warning"></i>
+                    Cihaz Listesi
+                </h5>
+                <small class="text-secondary">Kayıtlı ağ cihazlarınız</small>
+            </div>
+
+            <a href="add-device.html" class="btn btn-warning btn-sm mt-2">
+                <i class="bi bi-plus-circle"></i>
+                Yeni Cihaz Ekle
+            </a>
+
+        </div>
+
+        <div id="storageError" class="alert alert-danger d-none"></div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cihaz Adı</th>
+                        <th>Cihaz IP Adresi</th>
+                        <th>Modem IP Adresi</th>
+                        <th>Modem Türü</th>
+                        <th>Cihaz Türü</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody id="deviceTable"></tbody>
+
+            </table>
+        </div>
+
+        <div class="mt-3 d-flex justify-content-between">
+            <small class="text-secondary">Created BY Hanifi Yıldırım</small>
+            <small class="text-secondary" id="deviceCountText">0 cihaz</small>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    MYSO Network Management System © 2026
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://shgotiioeboxmcmmoxwh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XlDZ_uOq9ZKYQhZb5XwWtQ_EkzqP3uA";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let allDevices = [];
+let realtimeChannel = null;
+
+/* TARİH */
+document.getElementById("currentDate").textContent =
+    new Date().toLocaleDateString("tr-TR");
+
+
+/* OTURUM KONTROLÜ */
+async function checkSession() {
+    try {
+        const localSession = JSON.parse(
+            localStorage.getItem("mysoSession") || "null"
+        );
+
+        if (
+            !localSession ||
+            !localSession.authenticated ||
+            !localSession.expiresAt ||
+            Date.now() >= localSession.expiresAt
+        ) {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem("mysoSession");
+            window.location.href = "login.html";
+            return false;
+        }
+
+        const { data, error } = await supabaseClient.auth.getSession();
+
+        if (error || !data.session) {
+            localStorage.removeItem("mysoSession");
+            window.location.href = "login.html";
+            return false;
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("Oturum kontrol hatası:", error);
+        window.location.href = "login.html";
+        return false;
+    }
+}
+
+
+/* HATA GÖSTER */
+function showError(message) {
+    const box = document.getElementById("storageError");
+    box.textContent = message;
+    box.classList.remove("d-none");
+}
+
+
+/* HATA GİZLE */
+function hideError() {
+    document.getElementById("storageError").classList.add("d-none");
+}
+
+
+/* SUPABASE'DEN CİHAZLARI GETİR */
+async function loadDevices() {
+    const table = document.getElementById("deviceTable");
+
+    try {
+        hideError();
+
+        const { data, error } = await supabaseClient
+            .from("devices")
+            .select("*")
+            .order("name", { ascending: true });
+
+        if (error) throw error;
+
+        allDevices = data || [];
+
+        renderDevices();
+
+    } catch (error) {
+        console.error("Cihaz yükleme hatası:", error);
+        showError("Cihazlar yüklenemedi: " + error.message);
+        table.innerHTML = "";
+    }
+}
+
+
+/* HÜCRE EKLE */
+function addCell(row, value) {
+    const cell = document.createElement("td");
+    cell.textContent = value || "-";
+    row.appendChild(cell);
+}
+
+
+/* CİHAZLARI EKRANA BAS */
+function renderDevices() {
+    const table = document.getElementById("deviceTable");
+
+    table.innerHTML = "";
+
+    const devices = allDevices;
+
+    if (devices.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 8;
+        cell.className = "text-center text-secondary py-4";
+        cell.textContent = "Henüz kayıtlı cihaz bulunmuyor.";
+
+        row.appendChild(cell);
+        table.appendChild(row);
+
+    } else {
+
+        devices.forEach((device, index) => {
+
+            const row = document.createElement("tr");
+
+            addCell(row, index + 1);
+            addCell(row, device.name);
+            addCell(row, device.ip);
+            addCell(row, device.modemIp || "Tanımlanmadı");
+            addCell(row, device.modemBrand || "Belirtilmedi");
+            addCell(row, device.type || "Belirtilmedi");
+
+            const statusCell = document.createElement("td");
+            statusCell.innerHTML =
+                '<span class="badge bg-secondary">Kontrol Edilmedi</span>';
+            row.appendChild(statusCell);
+
+            const actionCell = document.createElement("td");
+            actionCell.className = "action-buttons";
+
+            const openButton = document.createElement("button");
+            openButton.type = "button";
+            openButton.className = "btn btn-sm btn-warning";
+            openButton.innerHTML =
+                '<i class="bi bi-box-arrow-up-right"></i> Aç';
+            openButton.onclick = () => goDevice(device);
+
+            const editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "btn btn-sm btn-info";
+            editButton.innerHTML = '<i class="bi bi-pencil"></i>';
+            editButton.title = "Düzenle";
+            editButton.onclick = () => editDevice(device);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "btn btn-sm btn-danger";
+            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+            deleteButton.title = "Sil";
+            deleteButton.onclick = () => deleteDevice(device);
+
+            actionCell.append(openButton, editButton, deleteButton);
+            row.appendChild(actionCell);
+
+            table.appendChild(row);
+        });
+    }
+
+    updateStatistics(devices);
+    searchDevice();
+}
+
+
+/* İSTATİSTİKLER */
+function updateStatistics(devices) {
+
+    document.getElementById("totalDevices").textContent =
+        devices.length;
+
+    document.getElementById("routerCount").textContent =
+        devices.filter(d =>
+            (d.type || "").toLowerCase().includes("router")
+        ).length;
+
+    document.getElementById("apCount").textContent =
+        devices.filter(d => {
+            const type = (d.type || "").toLowerCase();
+            return type.includes("ap") || type.includes("access point");
+        }).length;
+
+    document.getElementById("modemCount").textContent =
+        devices.filter(d => d.modemIp && d.modemIp.trim()).length;
+
+    document.getElementById("deviceCountText").textContent =
+        devices.length + " cihaz";
+}
+
+
+/* CİHAZ SAYFASINA GİT */
+function goDevice(device) {
+
+    const params = new URLSearchParams();
+
+    params.set("ip", device.ip || "");
+    params.set("modemIp", device.modemIp || "");
+    params.set("modemBrand", device.modemBrand || "");
+    params.set("name", device.name || "");
+    params.set("type", device.type || "");
+
+    window.location.href = "device.html?" + params.toString();
+}
+
+
+/* CİHAZ DÜZENLE */
+async function editDevice(device) {
+
+    const name = prompt("Cihaz adı:", device.name || "");
+    if (name === null) return;
+
+    const ip = prompt("Cihaz IP adresi:", device.ip || "");
+    if (ip === null) return;
+
+    const modemIp = prompt("Modem IP adresi:", device.modemIp || "");
+    if (modemIp === null) return;
+
+    const modemBrand = prompt(
+        "Modem markası:",
+        device.modemBrand || ""
+    );
+    if (modemBrand === null) return;
+
+    const type = prompt("Cihaz türü:", device.type || "");
+    if (type === null) return;
+
+    if (!name.trim() || !ip.trim() || !type.trim()) {
+        alert("Cihaz adı, IP ve cihaz türü boş bırakılamaz.");
+        return;
+    }
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("devices")
+            .update({
+                name: name.trim(),
+                ip: ip.trim(),
+                modemIp: modemIp.trim(),
+                modemBrand: modemBrand.trim(),
+                type: type.trim()
+            })
+            .eq("id", device.id);
+
+        if (error) throw error;
+
+        alert("Cihaz başarıyla güncellendi.");
+
+        await loadDevices();
+
+    } catch (error) {
+        console.error("Düzenleme hatası:", error);
+        alert("Cihaz güncellenemedi: " + error.message);
+    }
+}
+
+
+/* CİHAZ SİL */
+async function deleteDevice(device) {
+
+    const confirmed = confirm(
+        '"' + device.name + '" cihazını silmek istediğinize emin misiniz?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("devices")
+            .delete()
+            .eq("id", device.id);
+
+        if (error) throw error;
+
+        alert("Cihaz başarıyla silindi.");
+
+        await loadDevices();
+
+    } catch (error) {
+        console.error("Silme hatası:", error);
+        alert("Cihaz silinemedi: " + error.message);
+    }
+}
+
+
+/* ARAMA */
+function searchDevice() {
+
+    const input = document
+        .getElementById("deviceSearch")
+        .value
+        .toLowerCase()
+        .trim();
+
+    document.querySelectorAll("#deviceTable tr").forEach(row => {
+
+        row.style.display =
+            row.innerText.toLowerCase().includes(input) ? "" : "none";
+
+    });
+}
+
+
+/* ARAMA EVENT */
+document
+    .getElementById("deviceSearch")
+    .addEventListener("input", searchDevice);
+
+
+/* GERÇEK ZAMANLI GÜNCELLEME */
+function startRealtime() {
+
+    if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+    }
+
+    realtimeChannel = supabaseClient
+        .channel("myso-devices-changes")
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "devices"
+            },
+            async () => {
+                await loadDevices();
+            }
+        )
+        .subscribe();
+}
+
+
+/* SAYFA BAŞLAT */
+async function startApp() {
+
+    const authenticated = await checkSession();
+
+    if (!authenticated) return;
+
+    await loadDevices();
+
+    startRealtime();
+}
+
+startApp();
+
+</script>
+</body>
+</html>
